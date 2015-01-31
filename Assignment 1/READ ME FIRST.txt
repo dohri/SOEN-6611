@@ -1,0 +1,3 @@
+In Part 2 of the assignment, since we have to choose the URL thus the range of bugs is given in the script rather than in config file and the timeout is also directly used in the script.
+
+User will be prompted to enter the number of bugs with a given range thus it has been removed from the config file, since different urls will contain different bug id's

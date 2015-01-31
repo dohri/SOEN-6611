@@ -1,0 +1,2 @@
+url = https://hibernate.atlassian.net/browse/WEBSITE-251?jql=
+root_directory = /home/dhruv/Documents/bugs

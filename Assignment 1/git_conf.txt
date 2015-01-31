@@ -1,0 +1,4 @@
+url = https://f-droid.org/repository/browse/?fdid=com.grarak.kerneladiutor
+url = https://f-droid.org/repository/browse/?fdid=com.mill_e.twitterwrapper
+url = https://github.com/search?utf8=%E2%9C%93&q=enterprise
+root_directory=/home/dhruv/Documents/
