@@ -1,0 +1,6 @@
+url = https://hibernate.atlassian.net/browse/WEBSITE-251?jql=
+project_tag = WEBSITE
+bug_start = 0
+bug_end = 10
+max_timeout_secs = 60
+root_directory = /home/dhruv/Documents/bugs

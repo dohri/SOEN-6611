@@ -1,3 +1,20 @@
+For part 2 of the assignment there are 2 scripts:
+
+
+Script 1 uses bug number to download the bugs as for the given url there are 50 bugs in total with list starting from 201-251, thus bug_start = 201 and bug_end = 251(max)
+
+script 1 = get_atlassian_bugs.py 
+config for script 1 = bug_conf
+
+Script 2
+
+script 2 use the index value from the list thus you can download bugs by just entering range of bugs you want to download eg:0-5...0-10...etc with bug_start = 0 (min index value) and bug_end = 49 (max index value) 
+
+script 2 = get_atlassian_bugs1.py
+config for script 2 = bug_conf1
+
+****************************************************************
+
 External Modules that have been used are there under External Modules branch in form of .rar files. Modules used are:
 1.BeautifulSoup
 2.pygithub3 - to interact with GITHUB API
