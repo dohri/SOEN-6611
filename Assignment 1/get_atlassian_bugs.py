@@ -17,21 +17,60 @@ def download_bug(bugno,url):
 
 url = open("bugs_conf.txt",'r').readlines()
 root = url[-1]
+#print(url)
+for i in url:
+	if "url" in i:
+		url1 = i
+	if "project_tag" in i:
+		project_tag = i
+	if "bug_start" in i:
+		bug_start = i
+	if "bug_end" in  i:
+		bug_end = i
+	if "max_timeout_secs" in i:
+		max_timeout_secs = i
+	if "root_directory" in i:
+		root = i
+
 root = root.split("root_directory = ")
 for i in root:
 	r = i
 r = r.rstrip()
-'''
-del url[-1]
-temp = []
-for n in url:
-    x = n.split("url = ")
-    temp.append(x[-1])
-'''
+#print(r)
+
 url1 = url[0]
-url1 = url1.split("url = ")
+url1 =  url1.split("url = ")
 for i in url1:
 	url2 = i
+url2 = url2.rstrip()
+#print(url2)
+
+project_tag = project_tag.split("project_tag = ")
+for i in project_tag:
+	project_tag1 = i
+project_tag1 = project_tag1.rstrip()
+#print(project_tag1)
+
+bug_start = bug_start.split("bug_start = ")
+for i in bug_start:
+	bug_start1 = i
+bug_start1 = bug_start1.rstrip()
+#print(bug_start1)
+
+
+bug_end = bug_end.split("bug_end = ")
+for i in bug_end:
+	bug_end1 = i
+bug_end1 = bug_end1.rstrip()
+#print(bug_end1)
+
+
+max_timeout_secs =  max_timeout_secs.split("max_timeout_secs = ")
+for i in max_timeout_secs:
+	max_timeout_secs1 = i
+max_timeout_secs1 = max_timeout_secs1.rstrip()
+#print(max_timeout_secs1)
+
 htm = urllib2.urlopen(url2)
 #htm = urllib2.urlopen("https://f-droid.org/repository/browse/?fdid=uk.org.crimetalk")
 soup  = beau(htm)
@@ -74,21 +113,26 @@ print(bugno)
 
 
 print('This web page has bug follwing bug numbers with range:'+ temp[-1] + "-" + temp[0] + ":: TOTAL bugs: " + str(x))
-print('Please enter range of bugs to be downloaded in increasing order that is smallest to largest')
-rng = input("enter starting number starting from:")
-rng1 = input("enter end number:")
-ip = temp.index(str(rng))
-ip2 = temp.index(str(rng1))
+#rng = input("enter starting number starting from:")
+#rng1 = input("enter end number:")
+ip = temp.index(str(bug_start1))
+ip2 = temp.index(str(bug_end1))
+#print(ip)
+#print(ip2)
+raw_input("press enter to continue \n")
 #print(ip,"::",ip2)
 temp = temp[int(ip2):int(ip)]
 temp3 = []
+
+print("Bugs will be downloaded in directory: ",r)
+
 os.mkdir(r)
 os.chdir(r)
 for i in temp: 
 	bugnumb = i
 	i = "https://hibernate.atlassian.net/browse/" + bug_name + "-" + i
 	download_bug(bugnumb,i)
-	time_out = randint(1,60)
+	time_out = randint(1,int(max_timeout_secs1))
 	print("Next bug will be downloaded after " + str(time_out) + "Sec")
 	time.sleep(time_out)
 	
