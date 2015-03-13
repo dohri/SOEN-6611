@@ -21,7 +21,6 @@ bugsCommentsDictionary = dict()
 
 def getBugsID():
     elements = soup.findAll("td", {"class": "vt id col_0"})
-    # print "Number of elements in Bug ID Column = " + str(len(elements))
     for i in elements:
         bug_ids_temp = i.findAll("a")
         for bugID in bug_ids_temp:
@@ -38,8 +37,6 @@ def getBugsOS():
             bugsOSList.append(str1)
 
 def getBugsPriority():
-    # htm = urllib2.urlopen(url)
-    # soup = beau(htm)
     elements = soup.findAll("td", {"class": "vt col_1"})
     for i in elements:
         aLink = i.findAll("a")
@@ -60,7 +57,6 @@ def getBugsSummary():
             temp.append(str1)
 
     temp1 = []
-
     for i in elements:
         aLink = i.findAll('a', {"class": "label"})
         for i in aLink:
@@ -70,8 +66,6 @@ def getBugsSummary():
 
     temp3 = [x for x in temp if x not in temp1]
     bugsSummaryList.extend(temp3)  # append bugsSummaryList with data in temp3
-
-    # temp = temp - temp1 deleting common elements
 
 def getBugsStatus():
     elements = soup.findAll("td", {"class": "vt col_6"})
@@ -88,7 +82,6 @@ def getBugsDescriptionAndComments():
         bug_ids_temp = i.findAll("a")
         for bugID in bug_ids_temp:
             bugURL = 'https://code.google.com/p/chromium/issues/detail?id=' + str(bugID.text)
-            # print(str(bugURL))
             htm = urllib2.urlopen(bugURL)
             soupObject = beau(htm)
 
@@ -98,27 +91,15 @@ def getBugsDescriptionAndComments():
                 descriptionText = i.findAll("pre")
                 for description in descriptionText:
                     bugsDescriptionList.append(description.text)#descriptionTemp)
-            # if bugsDescriptionList:
-            #     print "Bug Description: \n============"
-            #     print bugsDescriptionList[-1]
-            #     print "============\n"
 
             # Get Comments List
             elm = soupObject.findAll("div",{"class":"cursor_off vt issuecomment"})
-            # print "Total No of Comments = " + str(len(elm))
             commentsList = []
             for i in elm:
                 commentsText = i.findAll("pre")
                 for comment in commentsText:
                     commentsList.append(comment.text)
-            # print "Comment List: \n============"
-            # print commentsList
-            # print "============\n"
             bugsCommentsDictionary[bugID] = commentsList
-            # break
-        # break
-    time.sleep(1)
-
 
 def getBugsDescriptionAndCommentsFromDump():
 
@@ -196,7 +177,6 @@ def insertDatabaseRecords(dbConnection, dbTableName, dbTableAttributes, dbTableA
         baseQuery = baseQuery[:-2]      # Removing the last comma
 
         if(type(dbTableAttributesData[0]) != dict):
-            numberOfFailedBugs = 0
             for row in xrange(0, len(dbTableAttributesData[0])):
                 query = baseQuery + ") VALUES ("
                 try:
@@ -210,52 +190,35 @@ def insertDatabaseRecords(dbConnection, dbTableName, dbTableAttributes, dbTableA
                         except TypeError:
                             query += "\'" + recordEntryValue + "\',"
                     query = query[:-1] + ");"       # Removing the last comma
-                    # print query
-
                     cur.execute(query)
                 except mdb.Error, e:
                     print "Database Error %d: %s" % (e.args[0],e.args[1])
                     continue
                 except StandardError, e:
                     print "Error in BugID = %s" % dbTableAttributesData[1][row]
-                    numberOfFailedBugs += 1
                     continue
-            if (dbTableName == 'Bug'):
-                print "Total No of failed bugs insertions = %d" % numberOfFailedBugs
         else:
-            numberOfFailedComments = 0
             for bugID, bugComments in dbTableAttributesData[0].iteritems():
                 for comment in bugComments:
                     try:
-                        # print "Inserting BugID: %s comments" % bugID.text # + ", Comment: " + comment
                         recordEntryValue = comment.strip().replace("\'","")#.encode('utf-8',errors='strict')
-                        # try:
-                        #     query = baseQuery + ") VALUES (\'" + recordEntryValue.encode('utf-8') + "\', \'" + bugID.text +  "\');"
-                        # except TypeError:
-                        #     query = baseQuery + ") VALUES (\'" + recordEntryValue + "\', \'" + bugID.text +  "\');"
-                        # print query
                         if (dbTableName == 'Comment'):
                             query = "%s) VALUES (\'%s\', \'%s\');" % (baseQuery,recordEntryValue,bugID)
                         else:
                             query = "%s) VALUES (\'%s\', \'%d\');" % (baseQuery,recordEntryValue,bugID)
                         cur.execute(query)
-                        # print "BugID: %s comment inserted" % bugID.text
                     except mdb.Error, e:
                         print "Database Error %d: %s" % (e.args[0],e.args[1])
                         continue
                     except StandardError, e:
                         print "Error in BugID = %s" % bugID
-                        numberOfFailedComments += 1
                         continue
-            if (dbTableName == 'Comment'):
-                print "Total No of failed comments insertions = %d" % numberOfFailedComments
+
 def getDatabaseRecords(dbConnection, dbTableName, dbTableAttributesParameters):
     with dbConnection:
         cur = dbConnection.cursor()
         columns = ""
         parameters = ""
-
-        # for row in xrange(0, len(dbTableAttributesParameters[0])):
         for column, parameter in dbTableAttributesParameters.iteritems():
             columns += "%s, " % column
             parameters += "%s=\'%s\' and " % (column,parameter)
@@ -265,8 +228,6 @@ def getDatabaseRecords(dbConnection, dbTableName, dbTableAttributesParameters):
         query = query[-4] + ";"
         result = cur.execute(query)
         return cur.fetchall()
-        # print "Insertion result: " + str(result)
-        # return result
 
 def getKeywordID(dbConnection, searchKeyword):
     with dbConnection:
@@ -274,8 +235,6 @@ def getKeywordID(dbConnection, searchKeyword):
         query = "select KeywordID from Keyword where SearchKeyword = \'%s\'" % searchKeyword
         print "getKeywordID query: %s" % query
         keywordID = cur.execute(query)
-        # print "Record result (KeywordID): %s" % keywordID
-        # return keywordID
         return cur.fetchall()
 
 ############################################# Main Script ################################################
@@ -320,19 +279,16 @@ try:
 
 ######################################## Information Extraction #########################################
 
-    for keyword in searchKeywords:                            # <== Looping overall keywords is commented for now. Once the script is finalized and tested it will un commented
+    for keyword in searchKeywords:
         bugUrl = url[0] + keyword.strip() + url[1] + '0'
         htmlResponse = urllib2.urlopen(bugUrl)
         soup = beau(htmlResponse)
         elements = soup.findAll("div", {"class": "pagination"})
 
-        # print elements[-1].text.split("\n")[-1].split(" ")[-1]      # Returns the total number of issues with extra characters
-
         numericMatch =  re.match(r"([0-9]+)([a-zA-Z]*)(&*)([a-zA-Z]*)", elements[-1].text.split("\n")[-1].split(" ")[-1]) # Extract numeric section
         if numericMatch:
             numericItems = numericMatch.groups()
             print "Total No. of Bugs = %s, for search criteria: %s" % (numericItems[0], keyword)
-
             totalNoOfIssues = int(numericItems[0])
             if (totalNoOfIssues > 1000):
                 if ((totalNoOfIssues % 1000) > 0):
@@ -341,15 +297,11 @@ try:
                     totalNoOfPages = totalNoOfIssues / 1000             # Ex: 2000 issues are listed in 2 pages
             else:
                 totalNoOfPages = 1                                      # 1000 issues and less are listed in 1 page
-            # print ("Total number of pages = " + str(totalNoOfPages))
 
             startingIssueNo = 0
             range = totalNoOfPages + 1
             for pageNumber in xrange(1, range):
-                # url = 'https://code.google.com/p/chromium/issues/list?can=1&q=high+memory+rendering+crash&colspec=ID%20Pri%20M%20Week%20ReleaseBlock%20Cr%20Status%20Owner%20Summary%20OS%20Modified&num=100&start=' \
                 bugUrl = url[0] + keyword.strip() + url[1] + str(startingIssueNo)
-                # print "Page No.: " + str(pageNumber) + ", First Issue No.: " +  str(startingIssueNo)
-                # print bugUrl
                 htmlResponse = urllib2.urlopen(bugUrl)
                 soup = beau(htmlResponse)
                 getBugsID()
@@ -357,37 +309,23 @@ try:
                 getBugsStatus()
                 getBugsSummary()
                 getBugsOS()
-                # getBugsDescriptionAndComments()
                 getBugsDescriptionAndCommentsFromDump()
                 startingIssueNo = (pageNumber * 1000) + 1
-                time.sleep(2)
-
-        print "No. of Bug ID Entries: " + str(len(bugsIdList)) + "\n" + \
-              "No. of Status Entries: " + str(len(bugsStatusList)) + "\n" + \
-              "No. of Priority Entries: " + str(len(bugsPriorityList)) + "\n" + \
-              "No. of Summary Entries: " + str(len(bugsSummaryList)) + "\n" + \
-              "No. of OS Entries: " + str(len(bugsOSList)) + "\n" + \
-              "No. of Description Entries: " + str(len(bugsDescriptionList)) + "\n" + \
-              "No. of Comments Entries: " + str(len(bugsCommentsDictionary))
+                time.sleep(60)
 
         # Inserting bugs to database
         bugsTableAttributesData = [bugsIdList,bugsPriorityList,bugsStatusList,bugsSummaryList,bugsOSList,bugsDescriptionList]
         insertDatabaseRecords(dbConnection, 'Bug', DATABASE_TABLES_Attributes['Bug'], bugsTableAttributesData)
 
         # Link bugs with keywords
-        # print "Search Keyword: %s" % searchKeywords[2]
         results = getKeywordID(dbConnection, keyword.strip())
         searchKeywordID = results[0][0]
-        # print "Search Keyword ID: %s" % searchKeywordID
         Keyword_BugTableAttributesData = [{searchKeywordID : bugsIdList}]
-        # print "Keyword_Bug Dictionary:"
-        # print Keyword_BugTableAttributesData
         insertDatabaseRecords(dbConnection, 'Keyword_Bug', DATABASE_TABLES_Attributes['Keyword_Bug'], Keyword_BugTableAttributesData)
 
         # Inserting bugs' comments to database
         commentsTableAttributesData = [bugsCommentsDictionary]
         insertDatabaseRecords(dbConnection, 'Comment', DATABASE_TABLES_Attributes['Comment'], commentsTableAttributesData)
-
 except mdb.Error, e:
     print "Error %d: %s" % (e.args[0],e.args[1])
     sys.exit(1)
